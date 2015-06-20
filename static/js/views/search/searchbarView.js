@@ -4,6 +4,7 @@ define([
     'backbone',
     'handlebars',
     'jqueryui',
+    'views/baseView',
     'text!templates/search/searchbar.html'
 ], function(
     $,
@@ -11,9 +12,10 @@ define([
     Backbone,
     Handlebars,
     JQueryUI,
+    BaseView,
     searchbarTemplate
 ) {
-    var SearchbarView = Backbone.View.extend({
+    var SearchbarView = BaseView.extend({
         template: Handlebars.compile(searchbarTemplate),
 
         events: {
@@ -22,6 +24,7 @@ define([
 
         initialize: function(options) {
             options = options || {};
+
             this.query = options.query;
         },
 
@@ -44,7 +47,7 @@ define([
                     });
                 },
                 select: function(event, ui) {
-                    Backbone.history.navigate('show/' + ui.item['value'], {trigger: true});
+                    Backbone.history.navigate('movies/' + ui.item['value'], {trigger: true});
                 }
             }).data( "ui-autocomplete")._renderItem = function( ul, item) {
                 var innerHtml = item['image_url'] ? '<img src="' + item['image_url'] + '">' : '';

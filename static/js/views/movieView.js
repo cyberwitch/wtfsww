@@ -3,29 +3,40 @@ define([
     'backbone',
     'handlebars',
     'models/movie',
+    'views/baseView',
     'text!templates/movie.html'
 ], function(
     $,
     Backbone,
     Handlebars,
     Movie,
+    BaseView,
     movieTemplate
 ) {
-    var MovieView = Backbone.View.extend({
+    var MovieView = BaseView.extend({
         template: Handlebars.compile(movieTemplate),
 
         initialize: function(options) {
-            var self = this;
+            BaseView.prototype.initialize.call(this);
 
-            options = options || {};
+            this.model = this.collection.get(options.id);
 
-            this.model.fetch().done(function() {
-                self.render.call(self);
-            });
+            if (!this.model) {
+                this.model = new Movie({id: options.id});
+                this.collection.add(this.model);
+            }
+        },
+
+        preload: function() {
+            return [this.model.fetch()];
         },
 
         render: function() {
-            this.$el.html(this.template({movie: this.model.toJSON()}));
+            if (this.finishedLoading) {
+                this.$el.html(this.template({movie: this.model.toJSON()}));
+            } else {
+                this.$el.html(this.loadingTemplate());
+            }
 
             return this;
         }

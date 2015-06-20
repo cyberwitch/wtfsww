@@ -3,42 +3,52 @@ define([
     'underscore',
     'backbone',
     'handlebars',
-    'text!templates/loading.html',
+    'views/baseView',
     'text!templates/search/resultsList.html'
 ], function(
     $,
     _,
     Backbone,
     Handlebars,
-    loadingTemplate,
+    BaseView,
     resultsListTemplate
 ) {
-    var MovieResultsView = Backbone.View.extend({
+    var MovieResultsView = BaseView.extend({
         template: Handlebars.compile(resultsListTemplate),
 
-        loadingTemplate: Handlebars.compile(loadingTemplate),
+        events: {
+            'click a': 'navigateToMovie'
+        },
 
         initialize: function(options) {
+            BaseView.prototype.initialize.call(this);
+
+            this.query = options.query;
+        },
+
+        preload: function() {
             var self = this;
 
-            options = options || {};
-
-            this.collection.search(options.query).done(function(movies) {
+            return [this.collection.search(this.query).done(function(movies) {
                 self.movies = _.map(movies, function(movie) {
                     return movie.toJSON();
                 });
-                self.render.call(self);
-            });
+            })];
         },
 
         render: function() {
-            if (this.movies) {
+            if (this.finishedLoading) {
                 this.$el.html(this.template({movies: this.movies}));
             } else {
                 this.$el.html(this.loadingTemplate());
             }
 
             return this;
+        },
+
+        navigateToMovie: function(e) {
+            e.preventDefault();
+            Backbone.history.navigate('movies/' + $(e.currentTarget).data('movie-id'), {trigger: true});
         }
     });
 

@@ -1,7 +1,7 @@
 <ul>
     {{#each movies}}
         <li>
-            {{this.title}} ({{this.year}})
+            <a href="#" data-movie-id="{{this.id}}">{{this.title}} ({{this.year}})</a>
         </li>
     {{/each}}
 </ul>

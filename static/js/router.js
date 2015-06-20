@@ -4,6 +4,7 @@ define([
     'backbone',
     'collections/movieCollection',
     'views/indexView',
+    'views/movieView',
     'views/search/movieResultsView'
 ], function(
     $,
@@ -11,11 +12,13 @@ define([
     Backbone,
     MovieCollection,
     IndexView,
+    MovieView,
     MovieResultsView
     ) {
     var AppRouter = Backbone.Router.extend({
         routes: {
             'search/:query': 'search',
+            'movies/:id': 'movie',
             '*actions': 'index'
         },
 
@@ -33,6 +36,15 @@ define([
             });
 
             $('#content').html(movieResultsView.render().el);
+        },
+
+        movie: function(id) {
+            var movieView = new MovieView({
+                id: id,
+                collection: this.movieCollection
+            });
+
+            $('#content').html(movieView.render().el);
         }
     });
 

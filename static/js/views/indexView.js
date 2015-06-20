@@ -2,16 +2,18 @@ define([
     'jquery',
     'underscore',
     'backbone',
+    'views/baseView',
     'views/search/searchbarView',
     'text!templates/index.html'
 ], function(
     $,
     _,
     Backbone,
+    BaseView,
     SearchbarView,
     indexTemplate
 ) {
-    var IndexView = Backbone.View.extend({
+    var IndexView = BaseView.extend({
         initialize: function() {
             this.searchbarView = new SearchbarView({collection: this.collection});
         },
