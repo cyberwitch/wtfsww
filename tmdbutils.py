@@ -17,16 +17,13 @@ class TMDBUtils():
                     self.config['images']['poster_sizes'][0] + \
                     result['poster_path']
 
-        if result.get('first_air_date', None):
-            first_air_date = result['first_air_date']
-            year = first_air_date[:first_air_date.index('-')]
+        if result.get('release_date', None):
+            release_date = result['release_date']
+            year = release_date[:release_date.index('-')]
 
         return {
             'id': result['id'],
-            'name': result['name'],
-            'overview': result.get('overview', None),
-            'seasons': result.get('seasons', None),
-            'episodes': result.get('episodes', None),
+            'title': result['title'],
             'image_url': image_url,
             'year': year
         }
@@ -34,14 +31,10 @@ class TMDBUtils():
     def search(self, query, suggestions=False):
         tmdb_search = tmdb.Search()
         search_type = 'ngram' if suggestions else 'phrase'
-        response = tmdb_search.tv(query=query, search_type=search_type)
+        response = tmdb_search.movie(query=query, search_type=search_type)
 
         return list(map(self.transform_result, response['results'][:5]))
 
-    def get_show(self, tmdb_id):
-        tmdb_tv = tmdb.TV(id=tmdb_id)
-        return self.transform_result(tmdb_tv.info())
-
-    def get_season(self, tmdb_id, season_number):
-        return self.transform_result(
-            tmdb.TV_Seasons(tmdb_id, season_number).info())
+    def get_movie(self, tmdb_id):
+        tmdb_movie = tmdb.Movies(id=tmdb_id)
+        return self.transform_result(tmdb_movie.info())

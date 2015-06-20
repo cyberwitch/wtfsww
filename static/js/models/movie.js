@@ -5,12 +5,9 @@ define([
 ) {
     var Movie = Backbone.Model.extend({
         defaults: {
-            name: null,
-            overview: null,
-            episodes: null,
+            title: null,
             image_url: null,
-            year: null,
-            seasons: null
+            year: null
         }
     });
 

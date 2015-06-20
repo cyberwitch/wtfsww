@@ -15,20 +15,14 @@ def index(path):
     return send_from_directory(app.static_folder, 'index.html')
 
 
-@app.route('/api/v1.0/search/<query>', methods=['GET'])
-def suggestions(query):
-    return dumps(tmdb.search(query, True))
+@app.route('/api/v1.0/movies', methods=['GET'])
+def search_movies():
+    return dumps(tmdb.search(request.args.get('query')))
 
 
-@app.route('/show/<tmdb_id>')
-def show(tmdb_id):
-    show = tmdb.get_show(tmdb_id)
-    return render_template('show.html', show=show)
-
-
-@app.route('/api/show/<tmdb_id>/season/<season_number>')
-def show_season(tmdb_id, season_number):
-    return dumps(tmdb.get_season(tmdb_id, season_number))
+@app.route('/api/v1.0/movies/<tmdb_id>', methods=['GET'])
+def get_movie(tmdb_id):
+    return dumps(tmdb.get_movie(tmdb_id))
 
 if __name__ == '__main__':
     app.run(debug=True)

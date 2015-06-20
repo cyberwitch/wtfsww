@@ -4,7 +4,6 @@ define([
     'backbone',
     'handlebars',
     'jqueryui',
-    'collections/movieCollection',
     'text!templates/search/searchbar.html'
 ], function(
     $,
@@ -12,13 +11,10 @@ define([
     Backbone,
     Handlebars,
     JQueryUI,
-    MovieCollection,
     searchbarTemplate
 ) {
     var SearchbarView = Backbone.View.extend({
         template: Handlebars.compile(searchbarTemplate),
-
-        collection: new MovieCollection(),
 
         events: {
             'submit form': 'search'
@@ -37,13 +33,12 @@ define([
             this.$('input').autocomplete({
                 appendTo: this.$('input').parent(),
                 source: function(request, response) {
-                    collection.query = request.term;
-                    collection.fetch().done(function(data) {
-                        response(_.map(data, function(d) {
+                    collection.search(request.term).done(function(movies) {
+                        response(_.map(movies, function(movie) {
                             return {
-                                value: d.id,
-                                label: d.name,
-                                image_url: d.image_url
+                                value: movie.get('id'),
+                                label: movie.get('title'),
+                                image_url: movie.get('image_url')
                             };
                         }));
                     });
@@ -64,9 +59,9 @@ define([
             return this;
         },
 
-        search: function() {
+        search: function(e) {
+            e.preventDefault();
             Backbone.history.navigate('search/' + this.$('input').val(), {trigger: true});
-            return false;
         }
     });
 

@@ -3,15 +3,15 @@ define([
     'underscore',
     'backbone',
     'collections/movieCollection',
-    'views/index/indexView',
-    'views/search/resultsListView'
+    'views/indexView',
+    'views/search/movieResultsView'
 ], function(
     $,
     _,
     Backbone,
     MovieCollection,
     IndexView,
-    ResultsListView
+    MovieResultsView
     ) {
     var AppRouter = Backbone.Router.extend({
         routes: {
@@ -19,16 +19,20 @@ define([
             '*actions': 'index'
         },
 
+        movieCollection: new MovieCollection(),
+
         index: function() {
-            var indexView = new IndexView();
+            var indexView = new IndexView({collection: this.movieCollection});
             $('#content').html(indexView.render().el);
         },
 
         search: function(query) {
-            var results = new MovieCollection([], {query: query}),
-                resultsListView = new ResultsListView({collection: results});
+            var movieResultsView = new MovieResultsView({
+                collection: this.movieCollection,
+                query: query
+            });
 
-            $('#content').html(resultsListView.render().el);
+            $('#content').html(movieResultsView.render().el);
         }
     });
 

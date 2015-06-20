@@ -3,7 +3,7 @@ define([
     'underscore',
     'backbone',
     'views/search/searchbarView',
-    'text!templates/index/index.html'
+    'text!templates/index.html'
 ], function(
     $,
     _,
@@ -13,7 +13,7 @@ define([
 ) {
     var IndexView = Backbone.View.extend({
         initialize: function() {
-            this.searchbarView = new SearchbarView();
+            this.searchbarView = new SearchbarView({collection: this.collection});
         },
 
         render: function() {
