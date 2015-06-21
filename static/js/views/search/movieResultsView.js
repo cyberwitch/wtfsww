@@ -29,10 +29,8 @@ define([
         preload: function() {
             var self = this;
 
-            return [this.collection.search(this.query).done(function(movies) {
-                self.movies = _.map(movies, function(movie) {
-                    return movie.toJSON();
-                });
+            return [this.collection.fetch({query: this.query}).done(function(movies) {
+                self.movies = movies;
             })];
         },
 

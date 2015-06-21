@@ -1,14 +1,16 @@
 define([
-    'backbone'
+    'models/baseModel'
 ], function(
-    Backbone
+    BaseModel
 ) {
-    var Movie = Backbone.Model.extend({
+    var Movie = BaseModel.extend({
         defaults: {
             title: null,
             image_url: null,
             year: null
-        }
+        },
+
+        expiration: 60 * 60 * 1000
     });
 
     return Movie;

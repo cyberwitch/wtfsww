@@ -36,18 +36,14 @@ define([
             this.$('input').autocomplete({
                 appendTo: this.$('input').parent(),
                 source: function(request, response) {
-                    collection.search(request.term).done(function(movies) {
+                    collection.fetch({query: request.term}).done(function(movies) {
                         response(_.map(movies, function(movie) {
-                            return {
-                                value: movie.get('id'),
-                                label: movie.get('title'),
-                                image_url: movie.get('image_url')
-                            };
+                            return _.extend(movie, {label: movie.title});
                         }));
                     });
                 },
                 select: function(event, ui) {
-                    Backbone.history.navigate('movies/' + ui.item['value'], {trigger: true});
+                    Backbone.history.navigate('movies/' + ui.item['id'], {trigger: true});
                 }
             }).data( "ui-autocomplete")._renderItem = function( ul, item) {
                 var innerHtml = item['image_url'] ? '<img src="' + item['image_url'] + '">' : '';

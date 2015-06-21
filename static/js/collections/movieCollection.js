@@ -28,23 +28,39 @@ define([
             }
         },
 
-        search: function(query) {
-            var self = this,
-                deferred = $.Deferred();
+        getOrAdd: function(id) {
+            var model = this.get(id);
 
-            if (this.searchCache && this.searchCache[query]) {
-                deferred.resolveWith(this, [this.get(this.searchCache[query])]);
-            } else {
-                this.fetch({
-                    data: {query: query},
-                    remove: false
-                }).done(function(data) {
-                    self.searchCache[query] = _.pluck(data, 'id');
-                    deferred.resolveWith(self, [self.get(self.searchCache[query])]);
-                });
+            if (!model) {
+                model = new Movie({id: id});
+                this.add(model);
             }
 
-            return deferred.promise();
+            return model;
+        },
+
+        fetch: function(options) {
+            var self = this;
+
+            options = options || {};
+
+            if (options.query) {
+                if (this.searchCache && this.searchCache[options.query]) {
+                    return $.Deferred()
+                        .resolveWith(this, [_.pluck(this.get(this.searchCache[options.query]), 'attributes')]);
+                } else {
+                    return this.fetch({
+                        data: {query: options.query},
+                        remove: false
+                    }).done(function(data) {
+                        self.searchCache[options.query] = _.pluck(data, 'id');
+                    });
+                }
+
+                return deferred.promise();
+            } else {
+                return Backbone.Collection.prototype.fetch.call(this, options);
+            }
         }
     });
 

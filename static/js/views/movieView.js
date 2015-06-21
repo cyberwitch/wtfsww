@@ -19,12 +19,7 @@ define([
         initialize: function(options) {
             BaseView.prototype.initialize.call(this);
 
-            this.model = this.collection.get(options.id);
-
-            if (!this.model) {
-                this.model = new Movie({id: options.id});
-                this.collection.add(this.model);
-            }
+            this.model = this.collection.getOrAdd(options.id);
         },
 
         preload: function() {

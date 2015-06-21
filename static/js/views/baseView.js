@@ -17,7 +17,7 @@ define([
         initialize: function() {
             var self = this;
 
-            setTimeout(function() {
+            self.preload && setTimeout(function() {
                 _.reduce(self.preload(), function(promise1, promise2) {
                     return promise1.done(promise2.done);
                 }).done(function() {
