@@ -5,7 +5,8 @@ define([
     'handlebars',
     'jqueryui',
     'views/baseView',
-    'text!templates/search/searchbar.html'
+    'text!templates/search/searchbar.html',
+    'text!templates/search/searchbarItem.html'
 ], function(
     $,
     _,
@@ -13,10 +14,13 @@ define([
     Handlebars,
     JQueryUI,
     BaseView,
-    searchbarTemplate
+    searchbarTemplate,
+    searchbarItemTemplate
 ) {
     var SearchbarView = BaseView.extend({
         template: Handlebars.compile(searchbarTemplate),
+
+        itemTemplate: Handlebars.compile(searchbarItemTemplate),
 
         events: {
             'submit form': 'search'
@@ -29,14 +33,14 @@ define([
         },
 
         render: function() {
-            var collection = this.collection;
+            var self = this;
 
             this.$el.html(this.template({query: this.query}));
 
             this.$('input').autocomplete({
                 appendTo: this.$('input').parent(),
                 source: function(request, response) {
-                    collection.fetch({query: request.term}).done(function(movies) {
+                    self.collection.fetch({query: request.term}).done(function(movies) {
                         response(_.map(movies, function(movie) {
                             return _.extend(movie, {label: movie.title});
                         }));
@@ -45,14 +49,8 @@ define([
                 select: function(event, ui) {
                     Backbone.history.navigate('movies/' + ui.item['id'], {trigger: true});
                 }
-            }).data( "ui-autocomplete")._renderItem = function( ul, item) {
-                var innerHtml = item['image_url'] ? '<img src="' + item['image_url'] + '">' : '';
-                innerHtml += item['label'];
-
-                return $('<li></li>')
-                    .data('item.autocomplete', item)
-                    .append(innerHtml)
-                    .appendTo(ul);
+            }).data("ui-autocomplete")._renderItem = function(ul, item) {
+                return $(self.itemTemplate(item)).appendTo(ul);
             };
 
             return this;

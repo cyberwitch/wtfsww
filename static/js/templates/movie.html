@@ -1,4 +1,4 @@
 <div>
-    <h1>{{movie.title}} ({{movie.year}})</h1>
-    <img url="{{movie.image_url}}" />
+    <h1>{{movie.title}} {{#if movie.year}}({{movie.year}}){{/if}}</h1>
+    {{#if movie.image_url}}<img url="{{movie.image_url}}" />{{/if}}
 </div>
