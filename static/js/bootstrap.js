@@ -5,7 +5,8 @@ require.config({
         underscore: 'libs/underscore/underscore',
         backbone: 'libs/backbone/backbone',
         handlebars: 'libs/handlebars/handlebars',
-        text: 'libs/text/text'
+        text: 'libs/text/text',
+        foundation: 'libs/foundation/foundation.min'
     },
     shim: {
         underscore: {
@@ -17,10 +18,14 @@ require.config({
         },
         jqueryui: {
             deps: ['jquery']
+        },
+        foundation: {
+            deps: ['jquery']
         }
     }
 });
 
-require(['app'], function(App) {
+require(['app', 'foundation'], function(App) {
+    $(document).foundation();
     App.initialize();
 });
