@@ -2,31 +2,44 @@ define([
     'jquery',
     'underscore',
     'backbone',
+    'foundation',
     'collections/movieCollection',
-    'views/indexView',
+    'views/homeView',
+    'views/mainCompositorView',
     'views/movieView',
     'views/search/movieResultsView'
 ], function(
     $,
     _,
     Backbone,
+    Foundation,
     MovieCollection,
-    IndexView,
+    HomeView,
+    MainCompositorView,
     MovieView,
     MovieResultsView
     ) {
     var AppRouter = Backbone.Router.extend({
         routes: {
+            'home': 'home',
             'search/:query': 'search',
             'movies/:id': 'movie',
-            '*actions': 'index'
+            '*actions': 'home'
         },
 
-        movieCollection: new MovieCollection(),
+        initialize: function() {
+            this.movieCollection = new MovieCollection();
 
-        index: function() {
-            var indexView = new IndexView({collection: this.movieCollection});
-            $('#content').html(indexView.render().el);
+            this.homeView = new HomeView();
+
+            this.mainCompositorView = new MainCompositorView({collection: this.movieCollection});
+
+            $('body').html(this.mainCompositorView.render().el);
+            $(document).foundation();
+        },
+
+        home: function() {
+            this.mainCompositorView.setContentView(this.homeView, 'Home');
         },
 
         search: function(query) {
@@ -35,7 +48,7 @@ define([
                 query: query
             });
 
-            $('#content').html(movieResultsView.render().el);
+            this.mainCompositorView.setContentView(movieResultsView, 'Search Results');
         },
 
         movie: function(id) {
@@ -44,7 +57,7 @@ define([
                 collection: this.movieCollection
             });
 
-            $('#content').html(movieView.render().el);
+            this.mainCompositorView.setContentView(movieView, '');
         }
     });
 

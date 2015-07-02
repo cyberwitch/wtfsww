@@ -23,7 +23,8 @@ define([
         itemTemplate: Handlebars.compile(searchbarItemTemplate),
 
         events: {
-            'submit form': 'search'
+            'submit form': 'search',
+            'click .search-button': 'search'
         },
 
         initialize: function(options) {

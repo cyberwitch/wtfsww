@@ -6,7 +6,8 @@ require.config({
         backbone: 'libs/backbone/backbone',
         handlebars: 'libs/handlebars/handlebars',
         text: 'libs/text/text',
-        foundation: 'libs/foundation/foundation.min'
+        foundation: 'libs/foundation/foundation.min',
+        foundationOffCanvas: 'libs/foundation/foundation/foundation.offcanvas'
     },
     shim: {
         underscore: {
@@ -20,12 +21,15 @@ require.config({
             deps: ['jquery']
         },
         foundation: {
-            deps: ['jquery']
+            deps: ['jquery'],
+            exports: 'Foundation'
+        },
+        foundationOffCanvas: {
+            deps: ['foundation']
         }
     }
 });
 
-require(['app', 'foundation'], function(App) {
-    $(document).foundation();
+require(['app'], function(App) {
     App.initialize();
 });
