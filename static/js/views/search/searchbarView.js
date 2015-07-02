@@ -64,7 +64,6 @@ define([
         search: function(e) {
             e.preventDefault();
             Backbone.history.navigate('search/' + this.$('input').val(), {trigger: true});
-            this.sidebarView.collapse();
         }
     });
 
