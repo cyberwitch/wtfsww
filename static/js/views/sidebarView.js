@@ -9,7 +9,6 @@ define([
 ], function(
     $,
     _,
-    Backbone,
     Foundation,
     FoundationOffCanvas,
     BaseView,
