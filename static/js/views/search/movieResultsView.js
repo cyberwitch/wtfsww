@@ -1,20 +1,22 @@
 define([
     'jquery',
-    'underscore',
     'backbone',
     'handlebars',
+    'collections/movieCollection',
     'views/baseView',
     'text!templates/search/resultsList.html'
 ], function(
     $,
-    _,
     Backbone,
     Handlebars,
+    MovieCollection,
     BaseView,
     resultsListTemplate
 ) {
     var MovieResultsView = BaseView.extend({
         template: Handlebars.compile(resultsListTemplate),
+
+        collection: MovieCollection.getInstance(),
 
         events: {
             'click a': 'navigateToMovie'
@@ -22,6 +24,8 @@ define([
 
         initialize: function(options) {
             BaseView.prototype.initialize.call(this);
+
+            options = options || {};
 
             this.query = options.query;
         },

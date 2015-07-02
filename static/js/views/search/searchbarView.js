@@ -1,18 +1,18 @@
 define([
-    'jquery',
     'underscore',
     'backbone',
     'handlebars',
     'jqueryui',
+    'collections/movieCollection',
     'views/baseView',
     'text!templates/search/searchbar.html',
     'text!templates/search/searchbarItem.html'
 ], function(
-    $,
     _,
     Backbone,
     Handlebars,
     JQueryUI,
+    MovieCollection,
     BaseView,
     searchbarTemplate,
     searchbarItemTemplate
@@ -22,12 +22,16 @@ define([
 
         itemTemplate: Handlebars.compile(searchbarItemTemplate),
 
+        collection: MovieCollection.getInstance(),
+
         events: {
             'submit form': 'search',
             'click .search-button': 'search'
         },
 
         initialize: function(options) {
+            BaseView.prototype.initialize.call(this);
+
             options = options || {};
 
             this.query = options.query;
@@ -60,6 +64,7 @@ define([
         search: function(e) {
             e.preventDefault();
             Backbone.history.navigate('search/' + this.$('input').val(), {trigger: true});
+            this.sidebarView.collapse();
         }
     });
 

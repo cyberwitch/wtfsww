@@ -2,6 +2,7 @@ define([
     'jquery',
     'backbone',
     'handlebars',
+    'collections/movieCollection',
     'models/movie',
     'views/baseView',
     'text!templates/movie.html'
@@ -9,6 +10,7 @@ define([
     $,
     Backbone,
     Handlebars,
+    MovieCollection,
     Movie,
     BaseView,
     movieTemplate
@@ -16,8 +18,12 @@ define([
     var MovieView = BaseView.extend({
         template: Handlebars.compile(movieTemplate),
 
+        collection: MovieCollection.getInstance(),
+
         initialize: function(options) {
             BaseView.prototype.initialize.call(this);
+
+            options = options || {};
 
             this.model = this.collection.getOrAdd(options.id);
         },

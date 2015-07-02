@@ -1,10 +1,8 @@
 define([
-    'jquery',
     'underscore',
     'backbone',
     'models/movie'
 ], function(
-    $,
     _,
     Backbone,
     Movie
@@ -61,6 +59,13 @@ define([
             } else {
                 return Backbone.Collection.prototype.fetch.call(this, options);
             }
+        }
+    }, {
+        instance: null,
+
+        getInstance() {
+            this.instance = this.instance || new MovieCollection();
+            return this.instance;
         }
     });
 

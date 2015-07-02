@@ -1,22 +1,16 @@
 define([
-    'jquery',
     'underscore',
-    'backbone',
     'views/baseView',
-    'views/search/searchbarView',
+    'views/sidebarView',
     'text!templates/mainCompositor.html'
 ], function(
-    $,
     _,
-    Backbone,
     BaseView,
-    SearchbarView,
+    SidebarView,
     mainCompositorTemplate
 ) {
     var MainCompositorView = BaseView.extend({
-        initialize: function() {
-            this.searchbarView = new SearchbarView({collection: this.collection});
-        },
+        sidebarView: new SidebarView(),
 
         setContentView: function(view, title) {
             this.contentView = view;
@@ -31,7 +25,7 @@ define([
 
         render: function() {
             this.$el.html(_.template(mainCompositorTemplate, {title: this.title}));
-            this.$('.searchbar').html(this.searchbarView.render().el);
+            this.$('.left-off-canvas-menu').html(this.sidebarView.render().el);
             this.renderContentView();
 
             return this;

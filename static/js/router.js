@@ -3,7 +3,6 @@ define([
     'underscore',
     'backbone',
     'foundation',
-    'collections/movieCollection',
     'views/homeView',
     'views/mainCompositorView',
     'views/movieView',
@@ -13,7 +12,6 @@ define([
     _,
     Backbone,
     Foundation,
-    MovieCollection,
     HomeView,
     MainCompositorView,
     MovieView,
@@ -28,11 +26,9 @@ define([
         },
 
         initialize: function() {
-            this.movieCollection = new MovieCollection();
-
             this.homeView = new HomeView();
 
-            this.mainCompositorView = new MainCompositorView({collection: this.movieCollection});
+            this.mainCompositorView = new MainCompositorView();
 
             $('body').html(this.mainCompositorView.render().el);
             $(document).foundation();
@@ -43,21 +39,15 @@ define([
         },
 
         search: function(query) {
-            var movieResultsView = new MovieResultsView({
-                collection: this.movieCollection,
-                query: query
-            });
+            var movieResultsView = new MovieResultsView({query: query});
 
             this.mainCompositorView.setContentView(movieResultsView, 'Search Results');
         },
 
         movie: function(id) {
-            var movieView = new MovieView({
-                id: id,
-                collection: this.movieCollection
-            });
+            var movieView = new MovieView({id: id});
 
-            this.mainCompositorView.setContentView(movieView, '');
+            this.mainCompositorView.setContentView(movieView, 'Movie');
         }
     });
 
