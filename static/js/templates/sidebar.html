@@ -1,6 +1,12 @@
 <ul class="off-canvas-list">
+  <ul class="off-canvas-list">
   <li><label>Search</label></li>
+
   <li class="searchbar"></li>
-  <li><label>WTFSWW</label></li>
-  <li><a href="#">Home</a></li>
+  {{#each sections}}
+    <li><label>{{@key}}</label></li>
+    {{#each this}}
+      <li><a href="#" data-route="{{this}}">{{@key}}</a></li>
+    {{/each}}
+  {{/each}}
 </ul>

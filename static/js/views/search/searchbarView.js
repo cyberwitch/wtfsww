@@ -3,6 +3,7 @@ define([
     'backbone',
     'handlebars',
     'jqueryui',
+    'require',
     'collections/movieCollection',
     'views/baseView',
     'text!templates/search/searchbar.html',
@@ -12,6 +13,7 @@ define([
     Backbone,
     Handlebars,
     JQueryUI,
+    Require,
     MovieCollection,
     BaseView,
     searchbarTemplate,
@@ -35,6 +37,8 @@ define([
             options = options || {};
 
             this.query = options.query;
+
+            this.sidebarView = options.sidebarView;
         },
 
         render: function() {
@@ -52,6 +56,7 @@ define([
                     });
                 },
                 select: function(event, ui) {
+                    self.sidebarView.collapse();
                     Backbone.history.navigate('movies/' + ui.item['id'], {trigger: true});
                 }
             }).data("ui-autocomplete")._renderItem = function(ul, item) {
@@ -63,6 +68,7 @@ define([
 
         search: function(e) {
             e.preventDefault();
+            this.sidebarView.collapse();
             Backbone.history.navigate('search/' + this.$('input').val(), {trigger: true});
         }
     });

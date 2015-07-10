@@ -34,7 +34,7 @@ define([
 
         render: function() {
             if (this.finishedLoading) {
-                this.$el.html(this.template({movie: this.model.toJSON()}));
+                this.$el.html(this.template(this.model.toJSON()));
             } else {
                 this.$el.html(this.loadingTemplate());
             }
