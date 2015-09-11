@@ -1,10 +1,10 @@
-import tmdbsimple as tmdb
+import tmdbsimple
 
 
 class TMDBUtils():
     def __init__(self, api_key):
-        tmdb.API_KEY = api_key
-        self.config = tmdb.Configuration().info()
+        tmdbsimple.API_KEY = api_key
+        self.config = tmdbsimple.Configuration().info()
         return
 
     def transform_result(self, result):
@@ -22,19 +22,18 @@ class TMDBUtils():
             year = release_date[:release_date.index('-')]
 
         return {
-            'id': result['id'],
+            'tmdb_id': result['id'],
             'title': result['title'],
             'image_url': image_url,
             'year': year
         }
 
-    def search(self, query, suggestions=False):
-        tmdb_search = tmdb.Search()
-        search_type = 'ngram' if suggestions else 'phrase'
-        response = tmdb_search.movie(query=query, search_type=search_type)
+    def search(self, query):
+        tmdb_search = tmdbsimple.Search()
+        response = tmdb_search.movie(query=query, search_type='ngram')
 
-        return list(map(self.transform_result, response['results'][:5]))
+        return [self.transform_result(movie) for movie in response['results'][:5]]
 
     def get_movie(self, tmdb_id):
-        tmdb_movie = tmdb.Movies(id=tmdb_id)
+        tmdb_movie = tmdbsimple.Movies(id=tmdb_id)
         return self.transform_result(tmdb_movie.info())
