@@ -71,7 +71,8 @@ class SignedInProfileFriendsView(generics.RetrieveAPIView):
     serializer_class = ProfileSerializer
 
     def get(self, request, format=None):
-        return Response(ProfileSerializer(self.queryset.get(user=self.request.user).friends, many=True, context={'request': request}).data)
+        # Only return friends who have friended back
+        return Response(ProfileSerializer(self.queryset.get(user=self.request.user).friends.filter(friends=self.request.user.profile), many=True, context={'request': request}).data)
 
 
 class SignedInProfileMoviesView(generics.RetrieveAPIView):
@@ -89,7 +90,8 @@ class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['GET'])
     def friends(self, request, pk, format=None):
-        return Response(ProfileSerializer(Profile.objects.get(pk=pk).friends, many=True, context={'request': request}).data)
+        # Only return friends who have friended back
+        return Response(ProfileSerializer(Profile.objects.get(pk=pk).friends.filter(friends=pk), many=True, context={'request': request}).data)
 
 
 class ProfileMovieViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
