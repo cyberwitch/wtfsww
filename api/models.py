@@ -17,7 +17,7 @@ class Movie(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, unique=True, on_delete=models.CASCADE)
     movies = models.ManyToManyField('Movie', through='Movieship')
-    friends = models.ManyToManyField('self', symmetrical=False)
+    friends = models.ManyToManyField('self', symmetrical=False, blank=True)
 
     def __str__(self):
         return self.user.username
