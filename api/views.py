@@ -1,33 +1,27 @@
-from django.contrib.auth.models import User
-
-from rest_framework import generics, viewsets
-from rest_framework.decorators import api_view, detail_route
+from rest_framework import generics, mixins, status, viewsets
+from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from api.models import Movie, Profile
-from api.serializers import MovieSerializer, ProfileSerializer, UserSerializer
+from api.serializers import MovieSerializer, ProfileSerializer
 from api.tmdbutils import TMDBUtils
 
 tmdb = TMDBUtils('1c9fdf67f8e8f9df79a09809f463bc25')
 
 
-@api_view(('GET',))
-def api_root(request, format=None):
-    return Response({
-        'users': reverse('user-list', request=request, format=format),
-    })
-
-
 class MovieViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Returns a movie from the global movie list
+    """
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
 
-    def list(self, request, format=None):
+    def list(self, request):
         """
+        Query the global movie list, with filters by name and profile
         ---
         parameters:
             - name: query
@@ -61,44 +55,94 @@ class SignedInProfileView(generics.RetrieveAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
-    def get(self, request, format=None):
-        return Response(ProfileSerializer(self.queryset.get(user=self.request.user), context={'request': request}).data)
+    def get(self, request):
+        """
+        Returns signed in profile
+        """
+        return Response(ProfileSerializer(request.user.profile, context={'request': request}).data)
 
 
-class SignedInProfileFriendsView(generics.RetrieveAPIView):
+class SignedInProfileFriendViewSet(mixins.CreateModelMixin,
+                                   mixins.RetrieveModelMixin,
+                                   mixins.DestroyModelMixin,
+                                   mixins.ListModelMixin,
+                                   viewsets.GenericViewSet):
+    """
+    Returns friends of the signed in profile
+    """
     permission_classes = [IsAuthenticated]
-    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
-    def get(self, request, format=None):
+    def get_queryset(self):
         # Only return friends who have friended back
-        return Response(ProfileSerializer(self.queryset.get(user=self.request.user).friends.filter(friends=self.request.user.profile), many=True, context={'request': request}).data)
+        return self.request.user.profile.friends.filter(friends=self.request.user.profile)
+
+    def create(self, request):
+        """
+        Send/accept friend request
+        ---
+        consumes:
+            - application/json
+        parameters_strategy: replace
+        parameters:
+            - name: body
+              required: true
+              type: Profile
+              paramType: body
+              defaultValue: "{\\n  \\"id\\": 0\\n}"
+        """
+        try:
+            profile = Profile.objects.get(pk=request.data['id'])
+            if profile is request.user.profile:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            request.user.profile.friends.add(profile)
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk):
+        """
+        Remove friend/decline friend request
+        """
+        try:
+            profile = Profile.objects.get(pk=pk)
+            request.user.profile.friends.remove(pk)
+            profile.friends.remove(request.user.profile)
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class SignedInProfileMoviesView(generics.RetrieveAPIView):
+class SignedInProfileMovieViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Returns signed in profile's movie list
+    """
     permission_classes = [IsAuthenticated]
-    queryset = Profile.objects.all()
     serializer_class = MovieSerializer
 
-    def get(self, request, format=None):
-        return Response(MovieSerializer(self.queryset.get(user=self.request.user).movies, many=True, context={'request': request}).data)
+    def get_queryset(self):
+        return self.request.user.profile.movies
 
 
 class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Returns profiles by id
+    """
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
     @detail_route(methods=['GET'])
-    def friends(self, request, pk, format=None):
+    def friends(self, request, pk):
+        """
+        Returns profile friend lists
+        """
         # Only return friends who have friended back
         return Response(ProfileSerializer(Profile.objects.get(pk=pk).friends.filter(friends=pk), many=True, context={'request': request}).data)
 
 
 class ProfileMovieViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
+    """
+    Returns profile movies
+    """
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
-
-
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
