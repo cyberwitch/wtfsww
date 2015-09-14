@@ -1,9 +1,7 @@
-from rest_framework import generics, mixins, status, viewsets
+from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from api import models, serializers
 from api.tmdbutils import TMDBUtils
@@ -170,6 +168,18 @@ class SignedInProfileFriendViewSet(mixins.CreateModelMixin,
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    @detail_route(methods=['GET'])
+    def movies(self, request, pk):
+        """
+        Returns a friend's movie list
+        """
+        try:
+            profile = request.user.profile.friends.get(pk=pk)
+            return Response(
+                serializers.MovieshipSerializer(profile.movieship_set, many=True, context={'request': request}).data)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 class SignedInProfileMovieViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -184,9 +194,16 @@ class SignedInProfileMovieViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Returns profiles by id
+    Query the global profile list
+    ---
+    list:
+        parameters:
+            - name: search
+              paramType: query
     """
+    filter_backends = (filters.SearchFilter,)
     queryset = models.Profile.objects.all()
+    search_fields = ('first_name', 'last_name')
     serializer_class = serializers.ProfileSerializer
 
     @detail_route(methods=['GET'])
@@ -197,11 +214,3 @@ class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
         # Only return friends who have friended back
         return Response(serializers.ProfileSerializer(
             models.Profile.objects.get(pk=pk).friends.filter(friends=pk), many=True, context={'request': request}).data)
-
-
-class ProfileMovieViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
-    """
-    Returns profile movies
-    """
-    queryset = models.Movieship.objects.all()
-    serializer_class = serializers.MovieshipSerializer
