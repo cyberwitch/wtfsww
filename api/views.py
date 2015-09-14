@@ -1,5 +1,5 @@
 from rest_framework import filters, generics, mixins, status, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -105,19 +105,6 @@ class SignedInProfileView(generics.RetrieveUpdateAPIView):
             return Response(status.HTTP_400_BAD_REQUEST)
 
 
-class SignedInProfilePendingFriendViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    Returns pending friends of the signed in profile
-    """
-    permission_classes = [IsAuthenticated]
-    serializer_class = serializers.ProfileSerializer
-
-    def get_queryset(self):
-        # Only return friends who have not yet friended back
-        return self.request.user.profile.friends.exclude(
-            id__in=self.request.user.profile.friends.filter(friends=self.request.user.profile))
-
-
 class SignedInProfileFriendViewSet(mixins.CreateModelMixin,
                                    mixins.RetrieveModelMixin,
                                    mixins.DestroyModelMixin,
@@ -174,11 +161,20 @@ class SignedInProfileFriendViewSet(mixins.CreateModelMixin,
         Returns a friend's movie list
         """
         try:
-            profile = request.user.profile.friends.get(pk=pk)
+            profile = self.get_queryset().get(pk=pk)
             return Response(
                 serializers.MovieshipSerializer(profile.movieship_set, many=True, context={'request': request}).data)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @list_route(methods=['GET'])
+    def pending(self, request):
+        """
+        Returns the pending friend requests
+        """
+        return Response(serializers.ProfileSerializer(self.request.user.profile.friends.exclude(
+            id__in=self.request.user.profile.friends.filter(friends=self.request.user.profile)),
+            many=True, context={'request': request}).data)
 
 
 class SignedInProfileMovieViewSet(viewsets.ReadOnlyModelViewSet):

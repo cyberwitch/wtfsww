@@ -9,8 +9,6 @@ router = DefaultRouter(trailing_slash=False)
 router.register(r'movies', views.MovieViewSet)
 router.register(r'profile/friends', views.SignedInProfileFriendViewSet, base_name='profile-friend')
 router.register(r'profile/movies', views.SignedInProfileMovieViewSet, base_name='profile-movieship')
-router.register(
-    r'profile/pendingFriends', views.SignedInProfilePendingFriendViewSet, base_name='profile-friend')
 router.register(r'profiles', views.ProfileViewSet)
 
 urlpatterns = [
