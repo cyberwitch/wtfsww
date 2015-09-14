@@ -63,16 +63,6 @@ class SignedInProfileView(generics.RetrieveUpdateAPIView):
     def put(self, request):
         """
         Updates the signed in profile
-        ---
-        consumes:
-            - application/json
-        parameters_strategy: replace
-        parameters:
-            - name: body
-              required: true
-              type: Profile
-              paramType: body
-              defaultValue: "{\\n  \\"first_name\\": \\"\\",\\n  \\"last_name\\": \\"\\"\\n}"
         """
         try:
             request.user.profile.first_name = request.data['first_name']
@@ -85,16 +75,6 @@ class SignedInProfileView(generics.RetrieveUpdateAPIView):
     def patch(self, request):
         """
         Updates the signed in profile
-        ---
-        consumes:
-            - application/json
-        parameters_strategy: replace
-        parameters:
-            - name: body
-              required: true
-              type: Profile
-              paramType: body
-              defaultValue: "{\\n  \\"first_name\\": \\"\\",\\n  \\"last_name\\": \\"\\"\\n}"
         """
         try:
             request.user.profile.first_name = request.data.get('first_name', request.user.profile.first_name)
@@ -124,18 +104,13 @@ class SignedInProfileFriendViewSet(mixins.CreateModelMixin,
         """
         Send/accept friend request
         ---
-        consumes:
-            - application/json
         parameters_strategy: replace
         parameters:
-            - name: body
+            - name: friend
               required: true
-              type: Profile
-              paramType: body
-              defaultValue: "{\\n  \\"id\\": 0\\n}"
         """
         try:
-            profile = models.Profile.objects.get(pk=request.data['id'])
+            profile = models.Profile.objects.get(pk=request.data['friend'])
             if profile is request.user.profile:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             request.user.profile.friends.add(profile)
@@ -177,15 +152,38 @@ class SignedInProfileFriendViewSet(mixins.CreateModelMixin,
             many=True, context={'request': request}).data)
 
 
-class SignedInProfileMovieViewSet(viewsets.ReadOnlyModelViewSet):
+class SignedInProfileMovieViewSet(viewsets.ModelViewSet):
     """
-    Returns signed in profile's movie list
+    Returns or updates signed in profile's movie list
     """
+    lookup_field = 'movie'
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.MovieshipSerializer
 
     def get_queryset(self):
         return self.request.user.profile.movieship_set
+
+    def create(self, request):
+        """
+        Add movie to the signed in profile's list
+        ---
+        parameters:
+            - name: movie
+              required: true
+        """
+        if request.user.profile.movies.filter(pk=request.data['movie']):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            movie = models.Movie.objects.get(pk=request.data['movie'])
+            movieship = models.Movieship()
+            movieship.profile = request.user.profile
+            movieship.movie = movie
+            movieship.seen = request.data['seen']
+            movieship.want_to_see = request.data['want_to_see']
+            movieship.save()
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileViewSet(viewsets.ReadOnlyModelViewSet):

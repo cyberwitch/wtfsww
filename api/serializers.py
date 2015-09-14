@@ -25,7 +25,7 @@ class MovieshipSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Profile
-        fields = ('id', 'first_name', 'last_name')
+        fields = ('id', 'first_name', 'last_name',)
 
 
 class UserSerializer(serializers.ModelSerializer):
