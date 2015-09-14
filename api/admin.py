@@ -22,17 +22,5 @@ class ProfileAdmin(admin.ModelAdmin):
             kwargs['queryset'] = Profile.objects.exclude(pk=self.profile.pk)
         return super(ProfileAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
-
-class ProfileInline(admin.StackedInline):
-    model = Profile
-    can_delete = False
-
-
-class UserAdmin(UserAdmin):
-    inlines = [ProfileInline]
-
 admin.site.register(Movie)
 admin.site.register(Profile, ProfileAdmin)
-
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)

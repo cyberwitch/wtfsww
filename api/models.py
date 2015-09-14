@@ -15,6 +15,8 @@ class Movie(models.Model):
 
 
 class Profile(models.Model):
+    first_name = models.CharField(max_length=200)
+    last_name = models.CharField(max_length=200)
     user = models.OneToOneField(User, unique=True, on_delete=models.CASCADE)
     movies = models.ManyToManyField('Movie', through='Movieship')
     friends = models.ManyToManyField('self', symmetrical=False, blank=True)

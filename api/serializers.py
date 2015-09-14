@@ -2,34 +2,33 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from api.models import Movie, Movieship, Profile
+from api import models
 
 
-class MovieSerializer(serializers.HyperlinkedModelSerializer):
+class MovieSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Movie
-        fields = ('url', 'id', 'tmdb_id', 'title', 'year', 'image_url', 'profiles')
+        model = models.Movie
+        fields = ('id', 'title', 'year', 'image_url',)
 
 
-class MovieshipSerializer(serializers.HyperlinkedModelSerializer):
+class MovieshipSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='movie.id')
-    tmdb_id = serializers.ReadOnlyField(source='movie.tmdb_id')
     title = serializers.ReadOnlyField(source='movie.title')
     year = serializers.ReadOnlyField(source='movie.year')
     image_url = serializers.ReadOnlyField(source='movie.image_url')
 
     class Meta:
-        model = Movieship
-        fields = ('id', 'tmdb_id', 'title', 'year', 'image_url', 'seen', 'want_to_see')
+        model = models.Movieship
+        fields = ('id', 'title', 'year', 'image_url', 'seen', 'want_to_see',)
 
 
-class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Profile
-        fields = ('url', 'id', 'user')
+        model = models.Profile
+        fields = ('id', 'first_name', 'last_name')
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'id', 'username')
+        fields = ('id', 'username',)
